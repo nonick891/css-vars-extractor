@@ -1,0 +1,14 @@
+{
+  "name": "css-vars-extractor",
+  "version": "1.0.0",
+  "description": "Read style files and save variables to file",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikita Volchok",
+  "license": "ISC",
+  "dependencies": {
+    "file-oprtr": "file:../file-oprtr"
+  }
+}
