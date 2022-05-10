@@ -1,6 +1,11 @@
 let path = require('path'),
 	keys = obj => Object.keys(obj),
-	{ writeFile, getRootFilePath } = require('file-oprtr');
+	{
+		writeFile,
+		getRootFilePath,
+		getFileDir
+	} = require('file-oprtr');
+
 module.exports = class FileSaver {
 
 	/**
@@ -48,17 +53,28 @@ module.exports = class FileSaver {
 	}
 
 	save(file) {
-		let parsed = path.parse(file);
 		if (this.options.level === 'folder') {
-			let save = keys(this.options.files).map(f =>
-				path.parse(f).dir === parsed.dir
-			       ? this.getStyleVars(this.options.files[f], f) : ''
-			).filter(Boolean).join('\n');
-			writeFile(
-				getRootFilePath(parsed.dir, this.getFileName()),
-				save, true
-			);
+			this.writeDirFile(getFileDir(file));
 		}
+	}
+
+	writeDirFile(dir) {
+		writeFile(
+			getRootFilePath(dir, this.getFileName()),
+			this.getFolderFileContents(dir), true
+		);
+	}
+
+	getFolderFileContents(dir) {
+		return keys(this.options.files)
+			.map(this.getFileContent.bind(this, dir))
+			.filter(Boolean)
+			.join('\n')
+	}
+
+	getFileContent(dir) {
+		return f => path.parse(f).dir === dir
+		     ? this.getStyleVars(this.options.files[f], f) : ''
 	}
 
 	getStyleVars(content, comment) {
