@@ -33,9 +33,7 @@ module.exports = class FileSaver {
 	}
 
 	setOptions(options) {
-		options && keys(options).map(key =>
-			this.options[key] = options[key]
-		);
+		this.options = Object.assign({}, this.options, options ? options : {});
 	}
 
 	setFiles(files, update = []) {
