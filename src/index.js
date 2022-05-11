@@ -7,10 +7,14 @@ let FileWatcher =  require('./file-watcher'),
  * @type {{hooks: {watchRun: {tap: Function}, watchClose: {tap: Function}, failed: {tap: Function}, done: {tap: Function}}}}
  */
 class CssVariablesExtract {
-	constructor({source, fileName = 'variables', stage = ['watchRun', 'watchClose', 'failed', 'done']}) {
+	constructor({ source,
+        rootSelector = '.root',
+        fileName = 'variables',
+        stage = ['watchRun', 'watchClose', 'failed', 'done']
+	}) {
 		this.source = source;
 		this.stage = stage;
-		this.saver = new FileSaver({ fileName });
+		this.saver = new FileSaver({ fileName, rootSelector });
 		this.watcher = new FileWatcher();
 		this.reader = (new StyleReader(source)).setSourceFiles();
 	}
