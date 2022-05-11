@@ -68,9 +68,11 @@ module.exports = class FileSaver {
 	}
 
 	writeDirFile(dir) {
+		let content = this.getFolderFileContents(dir);
+		if (!this.options.emptyFiles && content.trim() === '') return;
 		writeFile(
 			getRootFilePath(dir, this.getFileName()),
-			this.getFolderFileContents(dir), true
+			content, true
 		);
 	}
 
@@ -86,8 +88,8 @@ module.exports = class FileSaver {
 			let content = this.getContent(f);
 			return (getFileDir(f) === dir)
 			       ? (
-						!this.isEmptyObj(content) ? this.getStyleVars(content, f) : ''
-						+ (this.isEmptyFileAvailable(f) ? '' : ' ')
+						!this.isEmptyObj(content)
+							? this.getStyleVars(content, f) : ''
 			       )
 			       : '';
 		};
