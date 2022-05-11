@@ -31,7 +31,6 @@ module.exports = class StyleReader {
 			saveVariables = el => el && el[1] ? setVariable(el[1].split(',').map(s => s.trim())) : false;
 		[...content.matchAll(/var\((.*)\)/g)].map(saveVariables);
 		this.freeRegExp();
-		if (JSON.stringify(variables) === '{}') return;
 		this.variables[file] = variables;
 	}
 

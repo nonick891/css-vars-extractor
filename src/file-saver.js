@@ -1,5 +1,4 @@
-let path = require('path'),
-	keys = obj => Object.keys(obj),
+let keys = obj => Object.keys(obj),
 	{
 		writeFile,
 		getRootFilePath,
@@ -9,21 +8,27 @@ let path = require('path'),
 module.exports = class FileSaver {
 
 	/**
-	 *
 	 * @type {{
-	 *  level: 'folder' || 'file',
+	 *  level: {string},
 	 *  fileName: {string},
-	 *  format: 'json' || 'style' || 'both',
+	 *  format: {string},
 	 *  files: {object},
-	 *  savePath: {string},
-	 *  rootSelector: {string}
+	 *  rootSelector: {string},
+	 *  emptyFiles: {boolean}
 	 * }}
+	 * @example
+	 * this.options = {
+	 *  level: 'folder' || 'file'
+	 *  format: 'json' || 'style' || 'both',
+	 * };
 	 */
 	options = {
 		level: 'folder',
 		fileName: 'variables',
 		format: 'scss',
-		rootSelector: '.root'
+		files: {},
+		rootSelector: '.root',
+		emptyFiles: true
 	};
 
 	format = {
@@ -35,6 +40,10 @@ module.exports = class FileSaver {
 
 	constructor(options) {
 		this.setOptions(options);
+	}
+
+	getContent(f) {
+		return this.options.files[f];
 	}
 
 	setOptions(options) {
@@ -67,14 +76,21 @@ module.exports = class FileSaver {
 
 	getFolderFileContents(dir) {
 		return keys(this.options.files)
-			.map(this.getFileContent.bind(this, dir))
+			.map(this.getFileContent(dir))
 			.filter(Boolean)
 			.join('\n')
 	}
 
 	getFileContent(dir) {
-		return f => path.parse(f).dir === dir
-		     ? this.getStyleVars(this.options.files[f], f) : ''
+		return (f) => {
+			let content = this.getContent(f);
+			return (getFileDir(f) === dir)
+			       ? (
+						!this.isEmptyObj(content) ? this.getStyleVars(content, f) : ''
+						+ (this.isEmptyFileAvailable(f) ? '' : ' ')
+			       )
+			       : '';
+		};
 	}
 
 	getStyleVars(content, comment) {
@@ -85,10 +101,20 @@ ${comment ? '\t//' + comment : ''}
 }\n\n`.trim()
 	}
 
+	isEmptyFileAvailable(file) {
+		let content = this.getContent(file);
+		return this.options.emptyFiles
+			&& this.isEmptyObj(content);
+	}
+
+	isEmptyObj(content) {
+		return JSON.stringify(content) === '{}';
+	}
+
 	getVars(content) {
 		return keys(content)
 			.map(k => `${k}: ${content[k] || '""'};`)
-			.join('\n\t')
+			.join('\n\t');
 	}
 
 	getFileName() {
