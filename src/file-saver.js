@@ -9,12 +9,12 @@ module.exports = class FileSaver {
 
 	/**
 	 * @type {{
-	 *  level: {string},
-	 *  fileName: {string},
-	 *  format: {string},
-	 *  files: {object},
-	 *  rootSelector: {string},
-	 *  emptyFiles: {boolean}
+	 *  level: String,
+	 *  fileName: String,
+	 *  format: String,
+	 *  files: Object,
+	 *  rootSelector: String,
+	 *  emptyFiles: Boolean
 	 * }}
 	 * @example
 	 * this.options = {
@@ -55,7 +55,7 @@ module.exports = class FileSaver {
 		return this.saveQueue = update.length > 0 ? update : keys(files);
 	}
 
-	saveFiles(files, update = []) {
+	saveFiles(files, update= []) {
 		let exclude = this.setFiles(files, update);
 		this.saveQueue.map(this.save.bind(this));
 		return exclude;
@@ -80,33 +80,26 @@ module.exports = class FileSaver {
 		return keys(this.options.files)
 			.map(this.getFileContent(dir))
 			.filter(Boolean)
-			.join('\n')
+			.join('\n');
 	}
 
 	getFileContent(dir) {
-		return (f) => {
-			let content = this.getContent(f);
-			return (getFileDir(f) === dir)
-			       ? (
-						!this.isEmptyObj(content)
-							? this.getStyleVars(content, f) : ''
-			       )
-			       : '';
-		};
+		return (f) => (getFileDir(f) === dir)
+			? this.getRootVars(f) : '';
 	}
 
-	getStyleVars(content, comment) {
+	getRootVars(file) {
+		let vars = this.getContent(file);
+		return !this.isEmptyObj(vars)
+			? this.getStyleVars(vars, file) : '';
+	}
+
+	getStyleVars(vars, comment) {
 		return `
 ${this.options.rootSelector} {
 ${comment ? '\t//' + comment : ''}
-	${this.getVars(content)}
+	${this.getVars(vars)}
 }\n\n`.trim()
-	}
-
-	isEmptyFileAvailable(file) {
-		let content = this.getContent(file);
-		return this.options.emptyFiles
-			&& this.isEmptyObj(content);
 	}
 
 	isEmptyObj(content) {
